@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+  fibos:
+      container_name: fibos
+      build: ./
+      working_dir: /app
+      expose :
+        - '9000'
+        - '80'
+      ports:
+        - "8081:8081"
+      #links:
+        #- mongodb-fibos
+      volumes:
+        - ./app:/app
+        #- ./conf:/root/.local/share/eosio/nodeos/config
+        #- ./data:/root/.local/share/eosio/nodeos/data
+      stdin_open: true
+      tty: true
+  nginx-fibos:
+    container_name: nginx-fibos
+      # Nginx 1.11.10: https://hub.docker.com/_/nginx/
+    build: ./nginx
+      # 将主机的 80 端口映射到容器的 80 端口
+    ports:
+      - "8083:80"
+      # 创建一个数据卷，由 ./images/nginx/config => /etc/nginx/conf.d
+    volumes:
+      - ./app:/app
+      - ./sites:/etc/nginx/conf.d:ro
+      - ./logs:/var/log/nginx
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    links:
+      - fibos
+  #mongodb-fibos:
+    #container_name: mongodb-fibos
+    #image: mongo
+    #restart: always
+    #ports:
+    #  - "27017:27017"
+    #volumes:
+    #  - "/data/mongo:/data/db"
+    #  - "/data/mongo-entrypoint/:/docker-entrypoint-initdb.d/"
+    #command: mongod
+    #environment:
+    #  - MONGO_INITDB_ROOT_USERNAME=root
+    #  - MONGO_INITDB_ROOT_PASSWORD=123456
+    #  - MONGO_INITDB_DATABASE=fibos
+      #- MONGODB_ROOT_PASSWORD= fibos-mongodb
